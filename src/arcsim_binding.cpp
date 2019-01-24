@@ -58,6 +58,9 @@ typedef uint32_t reset_session(int session_handle);
 #define STRINGIFY(name) #name
 #define GetFunction(name, ...) \
     {\
+    std::cout << "Calling " << STRINGIFY(name) << " from ARCSim Library..." << std::endl; \
+                                                                        \
+                                                \
         api_functions:: name * fnc_ptr;\
         try {\
             fnc_ptr = ARCSim::SharedLibrary::GetFunctionPointer< api_functions:: name >(plugin_handle_, STRINGIFY(name)); \
@@ -77,6 +80,8 @@ typedef uint32_t reset_session(int session_handle);
 
 #define GetFunctionNoReturn(name, ...) \
     {\
+            std::cout << "Calling " << STRINGIFY(name) << " from ARCSim Library..." << std::endl; \                                        \
+                                                \
         api_functions:: name * fnc_ptr;\
         try {\
             fnc_ptr = ARCSim::SharedLibrary::GetFunctionPointer< api_functions:: name >(plugin_handle_, STRINGIFY(name)); \
@@ -549,6 +554,7 @@ Napi::Value ArcsimBinding::StartSimulation(const Napi::CallbackInfo& info){
 
     if(! session.has_initialized ){
         GetFunction(prepare_simulation, session_handle, &session.params);
+        session.has_initialized = true;
     }
 
     GetFunction(start_session, session_handle);
