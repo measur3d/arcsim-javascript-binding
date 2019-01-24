@@ -1,5 +1,5 @@
 {
-  "name": "arcsim",
+  "name": "@avametric/arcsim",
   "version": "0.0.1",
   "description": "A binding for the C API of ARCSim to Javascript",
   "main": "index.js",
@@ -13,8 +13,9 @@
     "Simulation",
     "FEM"
   ],
+  "repository": "https://github.com/measur3d/arcsim-javascript-binding.git",  
   "author": "Avametric",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "bindings": "^1.4.0",
     "napi-thread-safe-callback": "0.0.6",
