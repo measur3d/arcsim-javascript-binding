@@ -1,0 +1,23 @@
+{
+  "name": "arcsim",
+  "version": "0.0.1",
+  "description": "A binding for the C API of ARCSim to Javascript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ARSCim",
+    "Clothing",
+    "Cloth",
+    "Simulation",
+    "FEM"
+  ],
+  "author": "Avametric",
+  "license": "ISC",
+  "devDependencies": {
+    "bindings": "^1.4.0",
+    "napi-thread-safe-callback": "0.0.6",
+    "node-addon-api": "^1.6.2"
+  }
+}
