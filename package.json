@@ -13,7 +13,7 @@
     "Simulation",
     "FEM"
   ],
-  "repository": "https://github.com/measur3d/arcsim-javascript-binding.git",  
+  "repository": "https://github.com/measur3d/arcsim-javascript-binding.git",
   "author": "Avametric",
   "license": "MIT",
   "devDependencies": {

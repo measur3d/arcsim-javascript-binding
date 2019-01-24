@@ -58,9 +58,7 @@ typedef uint32_t reset_session(int session_handle);
 #define STRINGIFY(name) #name
 #define GetFunction(name, ...) \
     {\
-    std::cout << "Calling " << STRINGIFY(name) << " from ARCSim Library..." << std::endl; \
-                                                                        \
-                                                \
+        std::cout << "Calling " << STRINGIFY(name) << " from ARCSim Library..." << std::endl;\
         api_functions:: name * fnc_ptr;\
         try {\
             fnc_ptr = ARCSim::SharedLibrary::GetFunctionPointer< api_functions:: name >(plugin_handle_, STRINGIFY(name)); \
@@ -80,8 +78,7 @@ typedef uint32_t reset_session(int session_handle);
 
 #define GetFunctionNoReturn(name, ...) \
     {\
-            std::cout << "Calling " << STRINGIFY(name) << " from ARCSim Library..." << std::endl; \                                        \
-                                                \
+        std::cout << "Calling " << STRINGIFY(name) << " from ARCSim Library..." << std::endl;\
         api_functions:: name * fnc_ptr;\
         try {\
             fnc_ptr = ARCSim::SharedLibrary::GetFunctionPointer< api_functions:: name >(plugin_handle_, STRINGIFY(name)); \
