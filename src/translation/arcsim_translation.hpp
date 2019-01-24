@@ -3,7 +3,7 @@
 
 #include <translation/flatbuffer_utils.hpp>
 #include <translation/arcsim_serializers.hpp>
-#include <translation/blob.hpp>
+#include <blob/blob.hpp>
 
 #include <json/json.h>
 
