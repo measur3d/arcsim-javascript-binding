@@ -2,7 +2,7 @@
   "name": "@avametric/arcsim",
   "version": "0.1.0",
   "description": "A binding for the C API of ARCSim to Javascript",
-  "main": "index.js",
+  "main": "index",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
