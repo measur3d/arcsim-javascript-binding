@@ -2,8 +2,10 @@
   "name": "@avametric/arcsim",
   "version": "0.2.0",
   "description": "A binding for the C API of ARCSim to Javascript",
-  "main": "index",
+  "main": "lib/index.js",
   "scripts": {
+    "build": "babel -s inline -d lib src",
+    "prepublish": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -17,6 +19,10 @@
   "author": "Avametric",
   "license": "MIT",
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-add-module-exports": "^1.0.0",
+    "babel-plugin-transform-object-entries": "^1.0.0",
+    "babel-preset-es2015": "^6.24.1",
     "napi-thread-safe-callback": "0.0.6",
     "node-addon-api": "^1.6.2"
   },
