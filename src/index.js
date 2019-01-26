@@ -11,7 +11,7 @@ export class ArcsimTranslator {
                                 obstacle_json_filename) {
         return new Promise((resolve, reject) => {
             try{
-                resolve(_addonInstance.convert_legacy_arcsim_scene(
+                resolve(this._addonInstance.convert_legacy_arcsim_scene(
                     garment_bin_filename,
                     garment_json_filename,
                     obstacle_bin_filename,
@@ -28,7 +28,7 @@ export class ArcsimTranslator {
                            garment_json_filename) {
         return new Promise((resolve, reject) => {
             try{
-                resolve(_addonInstance.convert_legacy_garment(
+                resolve(this._addonInstance.convert_legacy_garment(
                     garment_bin_filename,
                     garment_json_filename
                 ));
@@ -43,7 +43,7 @@ export class ArcsimTranslator {
                             obstacle_json_filename) {
         return new Promise((resolve, reject) => {
             try{
-                resolve(_addonInstance.convert_legacy_obstacle(
+                resolve(this._addonInstance.convert_legacy_obstacle(
                     obstacle_bin_filename,
                     obstacle_json_filename
                 ));
@@ -64,7 +64,7 @@ export class ArcsimBinding {
     version() {
         return new Promise((resolve, reject) => {
             try{
-                resolve(_addonInstance.version());
+                resolve(this._addonInstance.version());
             }
             catch( error ){
                 reject(error);
@@ -75,7 +75,7 @@ export class ArcsimBinding {
     create_session(config) {
         return new Promise((resolve, reject) => {
             try{
-                resolve(_addonInstance.create_session(config));
+                resolve(this._addonInstance.create_session(config));
             }
             catch( error ){
                 reject(error);
@@ -86,7 +86,7 @@ export class ArcsimBinding {
     destroy_session(session_handle) {
         return new Promise((resolve, reject) => {
             try{
-                resolve(_addonInstance.destroy_session(session_handle));
+                resolve(this._addonInstance.destroy_session(session_handle));
             }
             catch( error ){
                 reject(error);
@@ -97,7 +97,7 @@ export class ArcsimBinding {
     add_obstacle(session_handle, obstacle_data) {
         return new Promise((resolve, reject) => {
             try{
-                resolve(_addonInstance.add_obstacle(session_handle, obstacle_data));
+                resolve(this._addonInstance.add_obstacle(session_handle, obstacle_data));
             }
             catch( error ){
                 reject(error);
@@ -108,7 +108,7 @@ export class ArcsimBinding {
     add_garment(session_handle, garment_data) {
         return new Promise((resolve, reject) => {
             try{
-                resolve(_addonInstance.add_garment(session_handle,garment_data));
+                resolve(this._addonInstance.add_garment(session_handle,garment_data));
             }
             catch( error ){
                 reject(error);
@@ -119,7 +119,7 @@ export class ArcsimBinding {
     start_sim(session_handle) {
         return new Promise((resolve, reject) => {
             try{
-                resolve(_addonInstance.start_sim(session_handle));
+                resolve(this._addonInstance.start_sim(session_handle));
             }
             catch( error ){
                 reject(error);
@@ -130,7 +130,7 @@ export class ArcsimBinding {
     pause_sim(session_handle) {
         return new Promise((resolve, reject) => {
             try{
-                resolve(_addonInstance.pause_sim(session_handle));
+                resolve(this._addonInstance.pause_sim(session_handle));
             }
             catch( error ){
                 reject(error);
