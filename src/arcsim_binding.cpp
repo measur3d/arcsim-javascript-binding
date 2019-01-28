@@ -17,7 +17,7 @@ typedef uint32_t arcsim_version(unsigned int* major, unsigned int* minor, unsign
 typedef uint32_t api_version(unsigned int* major, unsigned int* minor);
 typedef uint32_t create_session(int version_major, int version_minor, SessionType session_type, int* out_handle);
 typedef uint32_t destroy_session(int session_handle);
-typedef uint32_t error_message(int session_handle, const char*& message );
+typedef uint32_t get_error_message(int session_handle, const char*& message );
 typedef uint32_t validate_garment(const char *json, BinBlob *bin);
 typedef uint32_t validate_garment_from_file(const char* json_file, const char* bin_file);
 typedef uint32_t validate_body(const char *json, BinBlob *bin);
@@ -341,8 +341,8 @@ Napi::Value ArcsimBinding::CreateSimulationSession(const Napi::CallbackInfo& inf
         }
 
         const char* error_msg = nullptr;
-        if( data.type == 6 ){
-            GetFunctionNoReturn(error_message, data.session_handle, error_msg);
+        if( data.type == CT_Error ){
+            GetFunctionNoReturn(get_error_message, data.session_handle, error_msg);
         }
         
         auto bytes = PackToBytestream( &fb_garmentFrame, nullptr );        
