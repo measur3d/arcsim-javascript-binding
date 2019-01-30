@@ -695,6 +695,13 @@ Napi::Value ArcsimBinding::GenerateMesh(const Napi::CallbackInfo& info){
                                 );
             blob.Load( *garment_data );
             GetFunctionNoReturn(free_garment_mesh, garment_data);
+
+            std::vector< std::array< float, 2 > > vertices_2d = blob.Get2DVertices();
+            std::vector< std::array< float, 3 > > vertices_3d;
+            vertices_3d.resize( vertices_2d.size() );
+            for( int v = 0; v < vertices_2d.size(); ++v)
+                vertices_3d.at(v) = { vertices_2d.at(v)[0], vertices_2d.at(v)[1], 0.0 };
+            blob.Set3DVertices(vertices_3d);                                
             
             fb_scene.garments.emplace_back( std::make_unique<ARCSim::GarmentT>() );
             try{
