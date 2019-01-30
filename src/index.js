@@ -147,5 +147,22 @@ export class ArcsimBinding {
                 }
             });
         }
+
+    generate_mesh = (garment_json) =>
+        {
+            return new Promise((resolve, reject) => {                   
+                try{
+                    this._addonInstance.generate_mesh(garment_json, (data, error) => {
+                        if( error == undefined )
+                            resolve( data );
+                        else
+                            reject( error );
+                    });
+                }
+                catch( error ){
+                    reject(error);
+                }
+            });
+        }
         
 }

@@ -98,7 +98,8 @@ struct BindingContext {
     BindingContext(Napi::Env& env) :
         env(env)
     {}
-    
+
+    std::vector<int> garment_handles, obstacle_handles;    
     ARCSim::SharedLibrary::HandleType plugin_handle_;
     Napi::Env env;
     ThreadSafeCallback* callback;
@@ -199,6 +200,7 @@ Napi::Value ArcsimBinding::Version(const Napi::CallbackInfo& info) {
 struct ARCSimSession
 {
     SimParams params;
+    MeshingParams meshing_params;    
     bool has_initialized;
 };
 
@@ -618,6 +620,109 @@ Napi::Value ArcsimBinding::DestroySimulationSession(const Napi::CallbackInfo& in
     return env.Null();    
 }
 
+Napi::Value ArcsimBinding::GenerateMesh(const Napi::CallbackInfo& info){
+    Napi::Env env = info.Env();
+
+    if (info.Length() != 2) {
+        Napi::TypeError::New(env, "Wrong number of arguments")
+          .ThrowAsJavaScriptException();
+        return env.Null();
+    }
+    
+    if( !info[0].IsString()) {
+        Napi::TypeError::New(env, "Argument 1 must be a JSON String")
+            .ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    if( !info[1].IsFunction()) {
+        Napi::TypeError::New(env, "Argument 2 must be a callback function")
+            .ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+
+    ARCSimSession* session = new ARCSimSession();
+    MeshingParams& params = session->meshing_params;
+    
+    GetFunction(get_default_meshing_parameters, &params);
+    params.callback.data_passthrough_ptr = nullptr;
+
+    unsigned int api_major, api_minor;
+    int session_handle;
+
+    GetFunction(api_version, &api_major, &api_minor);
+    GetFunction(create_session, api_major, api_minor, ST_Meshing, &session_handle);
+
+    int garment_handle;
+    std::string garment_json = info[0].As<Napi::String>().Utf8Value();
+    GetFunction(add_garment, session_handle, "data_garment", garment_json.c_str(), nullptr, &garment_handle);
+    
+    BindingContext* bindingContext = new BindingContext(env);
+    bindingContext->plugin_handle_ = plugin_handle_;
+    bindingContext->env = env;
+    bindingContext->callback = new ThreadSafeCallback(info[1].As<Function>());
+    bindingContext->garment_handles.push_back(garment_handle);    
+    params.callback.data_passthrough_ptr = bindingContext;
+
+    params.callback.func_ptr = [](CallbackData data){
+        if( !data.data_passthrough )
+            return;
+        BindingContext& bindingContext = *reinterpret_cast<BindingContext*>(data.data_passthrough);
+        ARCSim::SharedLibrary::HandleType& plugin_handle_ = bindingContext.plugin_handle_;
+        Napi::Env env = bindingContext.env;
+        ThreadSafeCallback& js_callback = *(bindingContext.callback);
+        // Check status
+        if( !( data.type == CT_Finished || data.type == CT_Error ) )
+            return;
+
+        const char* error_msg = nullptr;
+        if( data.type == CT_Error )
+            GetFunctionNoReturn(get_error_message, data.session_handle, error_msg);
+
+        ARCSim::GarmentFrameT fb_garmentFrame;        
+        if( data.type == CT_Finished ){            
+            // Fetch the current mesh...
+            Geometry::Blob blob;
+            BinBlob* garment_data;
+            GetFunctionNoReturn(get_garment_mesh,
+                                data.session_status.handle,
+                                bindingContext.garment_handles[0],
+                                &garment_data,
+                                false
+                                );
+            blob.Load( *garment_data );
+            GetFunctionNoReturn(free_garment_mesh, garment_data);
+            try{
+                ARCSimTranslation::ConvertToFB(blob, fb_garmentFrame);
+            }
+            catch( std::exception& err ){
+                Napi::Error::New(env, std::string("Failed to convert garment: ")+err.what() ).ThrowAsJavaScriptException();
+                return;
+            }
+        }
+        
+        auto bytes = PackToBytestream( &fb_garmentFrame, nullptr );                
+        js_callback.call([data, bytes, error_msg](Napi::Env env, std::vector<napi_value>& args)
+        {
+            Napi::Uint8Array js_byte_array = Napi::Uint8Array::New(env, bytes.second);
+            memcpy( js_byte_array.Data(), bytes.first, bytes.second);
+
+
+            if(error_msg)
+                args = { js_byte_array, Napi::String::New(env, error_msg) };
+            else
+                args = { js_byte_array };
+        });
+    };
+
+    GetFunction(prepare_meshing, session_handle, &params);
+    GetFunction(start_session, session_handle);
+    
+}
+
+
+
 Napi::Function ArcsimBinding::GetClass(Napi::Env env) {
     return DefineClass(env, "ArcsimBinding", {
             ArcsimBinding::InstanceMethod("version", &ArcsimBinding::Version),
@@ -626,6 +731,7 @@ Napi::Function ArcsimBinding::GetClass(Napi::Env env) {
                 ArcsimBinding::InstanceMethod("add_obstacle", &ArcsimBinding::AddObstacle),
                 ArcsimBinding::InstanceMethod("add_garment", &ArcsimBinding::AddGarment),
                 ArcsimBinding::InstanceMethod("start_sim", &ArcsimBinding::StartSimulation),
-                ArcsimBinding::InstanceMethod("pause_sim", &ArcsimBinding::PauseSimulation)
+                ArcsimBinding::InstanceMethod("pause_sim", &ArcsimBinding::PauseSimulation),
+                ArcsimBinding::InstanceMethod("generate_mesh", &ArcsimBinding::GenerateMesh)
     });
 }

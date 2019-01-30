@@ -1,0 +1,530 @@
+{
+    "metadata": {
+        "anything": "allowed"
+    },
+    "pieces": [
+        {
+            "boundary": [
+                {
+                    "name": "side0",
+                    "points": [
+                        {
+                            "loc": [
+                                0.2,
+                                -0.42
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.24292,
+                                -0.415773
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.28419,
+                                -0.403254
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.322225,
+                                -0.382923
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.355563,
+                                -0.355564
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.382923,
+                                -0.322226
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.403253,
+                                -0.284191
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.415773,
+                                -0.24292
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.42,
+                                -0.2
+                            ]
+                        }
+                    ],
+                    "type": "polyline"
+                },
+                {
+                    "name": "side1",
+                    "points": [
+                        {
+                            "loc": [
+                                0.42,
+                                -0.2
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.2,
+                                -0.2
+                            ]
+                        }
+                    ],
+                    "type": "polyline"
+                },
+                {
+                    "name": "side2",
+                    "points": [
+                        {
+                            "loc": [
+                                0.2,
+                                -0.2
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.2,
+                                -0.42
+                            ]
+                        }
+                    ],
+                    "type": "polyline"
+                }
+            ],
+            "fabric": {
+                "name": "Plain_weave-DS",
+                "parameters": {
+                    "bendBias": 0.208598031,
+                    "bendX": 0.354825353,
+                    "bendY": 0.149691946,
+                    "density": 0.015327808,
+                    "stretchBias": 0.001098857,
+                    "stretchX": 0.000154286,
+                    "stretchY": 0.000282857
+                },
+                "type": "gerber"
+            },
+            "grain_direction": [
+                0,
+                1
+            ],
+            "internals": [],
+            "name": "Circle_YX"
+        },
+        {
+            "boundary": [
+                {
+                    "name": "side0",
+                    "points": [
+                        {
+                            "loc": [
+                                0.42,
+                                0.2
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.415773,
+                                0.24292
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.403254,
+                                0.28419
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.382923,
+                                0.322225
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.355564,
+                                0.355563
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.322226,
+                                0.382923
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.28419,
+                                0.403253
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.24292,
+                                0.415773
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.2,
+                                0.42
+                            ]
+                        }
+                    ],
+                    "type": "polyline"
+                },
+                {
+                    "name": "side1",
+                    "points": [
+                        {
+                            "loc": [
+                                0.2,
+                                0.42
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.2,
+                                0.2
+                            ]
+                        }
+                    ],
+                    "type": "polyline"
+                },
+                {
+                    "name": "side2",
+                    "points": [
+                        {
+                            "loc": [
+                                0.2,
+                                0.2
+                            ]
+                        },
+                        {
+                            "loc": [
+                                0.42,
+                                0.2
+                            ]
+                        }
+                    ],
+                    "type": "polyline"
+                }
+            ],
+            "fabric": {
+                "name": "Plain_weave-DS",
+                "parameters": {
+                    "bendBias": 0.208598031,
+                    "bendX": 0.354825353,
+                    "bendY": 0.149691946,
+                    "density": 0.015327808,
+                    "stretchBias": 0.001098857,
+                    "stretchX": 0.000154286,
+                    "stretchY": 0.000282857
+                },
+                "type": "gerber"
+            },
+            "grain_direction": [
+                0,
+                1
+            ],
+            "internals": [],
+            "name": "Circle_yX"
+        },
+        {
+            "boundary": [
+                {
+                    "name": "side0",
+                    "points": [
+                        {
+                            "loc": [
+                                -0.2,
+                                0.42
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.24292,
+                                0.415773
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.28419,
+                                0.403254
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.322225,
+                                0.382923
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.355563,
+                                0.355563
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.382923,
+                                0.322225
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.403253,
+                                0.28419
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.415773,
+                                0.24292
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.42,
+                                0.2
+                            ]
+                        }
+                    ],
+                    "type": "polyline"
+                },
+                {
+                    "name": "side1",
+                    "points": [
+                        {
+                            "loc": [
+                                -0.42,
+                                0.2
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.2,
+                                0.2
+                            ]
+                        }
+                    ],
+                    "type": "polyline"
+                },
+                {
+                    "name": "side2",
+                    "points": [
+                        {
+                            "loc": [
+                                -0.2,
+                                0.2
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.2,
+                                0.42
+                            ]
+                        }
+                    ],
+                    "type": "polyline"
+                }
+            ],
+            "fabric": {
+                "name": "Plain_weave-DS",
+                "parameters": {
+                    "bendBias": 0.208598031,
+                    "bendX": 0.354825353,
+                    "bendY": 0.149691946,
+                    "density": 0.015327808,
+                    "stretchBias": 0.001098857,
+                    "stretchX": 0.000154286,
+                    "stretchY": 0.000282857
+                },
+                "type": "gerber"
+            },
+            "grain_direction": [
+                0,
+                1
+            ],
+            "internals": [],
+            "name": "Circle_yx"
+        },
+        {
+            "boundary": [
+                {
+                    "name": "side0",
+                    "points": [
+                        {
+                            "loc": [
+                                -0.42,
+                                -0.2
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.415773,
+                                -0.24292
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.403253,
+                                -0.28419
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.382923,
+                                -0.322225
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.355563,
+                                -0.355563
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.322225,
+                                -0.382923
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.28419,
+                                -0.403253
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.24292,
+                                -0.415773
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.2,
+                                -0.42
+                            ]
+                        }
+                    ],
+                    "type": "polyline"
+                },
+                {
+                    "name": "side1",
+                    "points": [
+                        {
+                            "loc": [
+                                -0.2,
+                                -0.42
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.2,
+                                -0.2
+                            ]
+                        }
+                    ],
+                    "type": "polyline"
+                },
+                {
+                    "name": "side2",
+                    "points": [
+                        {
+                            "loc": [
+                                -0.2,
+                                -0.2
+                            ]
+                        },
+                        {
+                            "loc": [
+                                -0.42,
+                                -0.2
+                            ]
+                        }
+                    ],
+                    "type": "polyline"
+                }
+            ],
+            "fabric": {
+                "name": "Plain_weave-DS",
+                "parameters": {
+                    "bendBias": 0.208598031,
+                    "bendX": 0.354825353,
+                    "bendY": 0.149691946,
+                    "density": 0.015327808,
+                    "stretchBias": 0.001098857,
+                    "stretchX": 0.000154286,
+                    "stretchY": 0.000282857
+                },
+                "type": "gerber"
+            },
+            "grain_direction": [
+                0,
+                1
+            ],
+            "internals": [],
+            "name": "Circle_Yx"
+        }
+    ],
+    "sewing": [
+	{
+	    "first":{
+		"piece":"Circle_Yx",
+		"curve":"side1"
+	    },
+	    "second":{
+		"piece":"Circle_YX",
+		"curve":"side2"
+	    },
+	    "reverse":true
+	},
+	{
+	    "first":{
+		"piece":"Circle_YX",
+		"curve":"side1"
+	    },
+	    "second":{
+		"piece":"Circle_yX",
+		"curve":"side2"
+	    },
+	    "reverse":true
+	},
+	{
+	    "first":{
+		"piece":"Circle_yX",
+		"curve":"side1"
+	    },
+	    "second":{
+		"piece":"Circle_yx",
+		"curve":"side2"
+	    },
+	    "reverse":true
+	},
+	{
+	    "first":{
+		"piece":"Circle_yx",
+		"curve":"side1"
+	    },
+	    "second":{
+		"piece":"Circle_Yx",
+		"curve":"side2"
+	    },
+	    "reverse":true
+	}  
+    ],
+    "version": "0.1"
+}

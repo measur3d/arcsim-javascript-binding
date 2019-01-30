@@ -19,6 +19,8 @@ public:
     Napi::Value StartSimulation(const Napi::CallbackInfo&);
     Napi::Value PauseSimulation(const Napi::CallbackInfo&);
 
+    Napi::Value GenerateMesh(const Napi::CallbackInfo&);    
+    
     static Napi::Function GetClass(Napi::Env);
 
 private:
