@@ -669,6 +669,7 @@ void ARCSimTranslation::ConvertFromFB( Geometry::Blob& blob, std::string& json, 
     }
     std::cout << "Converting Sewing" << std::endl;
 
+    json_root["sewing"] = Json::Value(Json::arrayValue);
     for( const auto& seam : garment.seams ){
         Json::Value seam_root;
         seam_root["sewn_fold"]["type"] = "simple";
