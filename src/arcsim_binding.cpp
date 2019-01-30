@@ -103,6 +103,7 @@ struct BindingContext {
     ARCSim::SharedLibrary::HandleType plugin_handle_;
     Napi::Env env;
     ThreadSafeCallback* callback;
+    std::string garment_json;    
 };
 
 
@@ -662,7 +663,8 @@ Napi::Value ArcsimBinding::GenerateMesh(const Napi::CallbackInfo& info){
     bindingContext->plugin_handle_ = plugin_handle_;
     bindingContext->env = env;
     bindingContext->callback = new ThreadSafeCallback(info[1].As<Function>());
-    bindingContext->garment_handles.push_back(garment_handle);    
+    bindingContext->garment_handles.push_back(garment_handle);
+    bindingContext->garment_json = garment_json;    
     params.callback.data_passthrough_ptr = bindingContext;
 
     params.callback.func_ptr = [](CallbackData data){
@@ -680,7 +682,7 @@ Napi::Value ArcsimBinding::GenerateMesh(const Napi::CallbackInfo& info){
         if( data.type == CT_Error )
             GetFunctionNoReturn(get_error_message, data.session_handle, error_msg);
 
-        ARCSim::GarmentFrameT fb_garmentFrame;        
+        ARCSim::SceneT fb_scene;
         if( data.type == CT_Finished ){            
             // Fetch the current mesh...
             Geometry::Blob blob;
@@ -693,8 +695,11 @@ Napi::Value ArcsimBinding::GenerateMesh(const Napi::CallbackInfo& info){
                                 );
             blob.Load( *garment_data );
             GetFunctionNoReturn(free_garment_mesh, garment_data);
+            
+            fb_scene.garments.emplace_back( std::make_unique<ARCSim::GarmentT>() );
             try{
-                ARCSimTranslation::ConvertToFB(blob, fb_garmentFrame);
+                ARCSimTranslation::ConvertToFB( blob, bindingContext.garment_json, *(fb_scene.garments.at(0)) );
+                ARCSimTranslation::ConvertToFB( blob, bindingContext.garment_json, fb_scene.constraints );
             }
             catch( std::exception& err ){
                 Napi::Error::New(env, std::string("Failed to convert garment: ")+err.what() ).ThrowAsJavaScriptException();
@@ -702,7 +707,7 @@ Napi::Value ArcsimBinding::GenerateMesh(const Napi::CallbackInfo& info){
             }
         }
         
-        auto bytes = PackToBytestream( &fb_garmentFrame, nullptr );                
+        auto bytes = PackToBytestream( &fb_scene, ARCSim::SceneIdentifier() );                
         js_callback.call([data, bytes, error_msg](Napi::Env env, std::vector<napi_value>& args)
         {
             Napi::Uint8Array js_byte_array = Napi::Uint8Array::New(env, bytes.second);
