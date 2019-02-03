@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <type_traits>
 
 #include "napi-thread-safe-callback.hpp"
 
@@ -94,6 +95,7 @@ typedef uint32_t reset_session(int session_handle);
         }\
 };
 
+
 struct BindingContext {
     BindingContext(Napi::Env& env) :
         env(env)
@@ -104,6 +106,14 @@ struct BindingContext {
     Napi::Env env;
     ThreadSafeCallback* callback;
     std::string garment_json;    
+};
+
+struct ARCSimSession
+{
+    SimParams params;
+    MeshingParams meshing_params;    
+    bool has_initialized;
+    BindingContext* context = {nullptr};    
 };
 
 
@@ -197,13 +207,6 @@ Napi::Value ArcsimBinding::Version(const Napi::CallbackInfo& info) {
 
     return ret;
 }
-
-struct ARCSimSession
-{
-    SimParams params;
-    MeshingParams meshing_params;    
-    bool has_initialized;
-};
 
    
 Napi::Value ArcsimBinding::CreateSimulationSession(const Napi::CallbackInfo& info) {
@@ -302,6 +305,7 @@ Napi::Value ArcsimBinding::CreateSimulationSession(const Napi::CallbackInfo& inf
             bindingContext->env = env;
             bindingContext->callback = new ThreadSafeCallback(config.Get("callback").As<Function>());
             params.callback.data_passthrough_ptr = bindingContext;
+            session->context = bindingContext;            
         }
     }
 
@@ -318,46 +322,56 @@ Napi::Value ArcsimBinding::CreateSimulationSession(const Napi::CallbackInfo& inf
             return;
         BindingContext& bindingContext = *reinterpret_cast<BindingContext*>(data.data_passthrough);
         ARCSim::SharedLibrary::HandleType& plugin_handle_ = bindingContext.plugin_handle_;
+        std::vector<int> garment_handles = bindingContext.garment_handles;        
         Napi::Env env = bindingContext.env;
         ThreadSafeCallback& js_callback = *(bindingContext.callback);
-        // Fetch the current mesh...
-        Geometry::Blob blob;
-        BinBlob* garment_data;
-        GetFunctionNoReturn(get_garment_mesh,
-                            data.session_status.handle,
-                            0 /* This is bad! We need to replace with all garments! */,
-                            &garment_data,
-                            false
-                            );
-        blob.Load( *garment_data );
-        GetFunctionNoReturn(free_garment_mesh, garment_data);
-        ARCSim::GarmentFrameT fb_garmentFrame;        
-        try{
-            ARCSimTranslation::ConvertToFB(blob, fb_garmentFrame);
-            fb_garmentFrame.frame = data.session_status.frame;
-            fb_garmentFrame.subframe = data.session_status.steps;
-            fb_garmentFrame.timestamp = data.session_status.time;
-        }
-        catch( std::exception& err ){
-            Napi::Error::New(env, std::string("Failed to convert garment: ")+err.what() ).ThrowAsJavaScriptException();
-            return;
-        }
-
+        typedef decltype(PackToBytestream<ARCSim::GarmentFrameT>(nullptr, nullptr)) packerRT;        
+        std::vector< packerRT > garments_bytes;
         const char* error_msg = nullptr;
         if( data.type == CT_Error ){
             GetFunctionNoReturn(get_error_message, data.session_handle, error_msg);
         }
+        else{            
+            for( int garment_id : garment_handles ){            
+                // Fetch the current mesh...
+                Geometry::Blob blob;
+                BinBlob* garment_data;
+                GetFunctionNoReturn(get_garment_mesh,
+                                    data.session_status.handle,
+                                    garment_id /* This is bad! We need to replace with all garments! */,
+                                    &garment_data,
+                                    false
+                                    );
+                blob.Load( *garment_data );
+                GetFunctionNoReturn(free_garment_mesh, garment_data);
+                ARCSim::GarmentFrameT fb_garmentFrame;        
+                try{
+                    ARCSimTranslation::ConvertToFB(blob, fb_garmentFrame);
+                    fb_garmentFrame.frame = data.session_status.frame;
+                    fb_garmentFrame.subframe = data.session_status.steps;
+                    fb_garmentFrame.timestamp = data.session_status.time;
+                }
+                catch( std::exception& err ){
+                    Napi::Error::New(env, std::string("Failed to convert garment: ")+err.what() ).ThrowAsJavaScriptException();
+                    return;
+                }
+                
+                garments_bytes.push_back( PackToBytestream( &fb_garmentFrame, nullptr ) );            
+            }
+        }
         
-        auto bytes = PackToBytestream( &fb_garmentFrame, nullptr );        
         
-        js_callback.call([data, bytes, error_msg](Napi::Env env, std::vector<napi_value>& args)
+            
+        js_callback.call([data, garments_bytes, error_msg](Napi::Env env, std::vector<napi_value>& args)
         {
             const int type = data.type;
-            Napi::Uint8Array js_byte_array = Napi::Uint8Array::New(env, bytes.second);
-            memcpy( js_byte_array.Data(), bytes.first, bytes.second);
-
             Napi::Array garment_updates = Napi::Array::New(env);
-            garment_updates[0u] = js_byte_array;
+            
+            for( int i = 0; i< garments_bytes.size(); ++i){                
+                Napi::Uint8Array js_byte_array = Napi::Uint8Array::New(env, garments_bytes[i].second);
+                memcpy( js_byte_array.Data(), garments_bytes[i].first, garments_bytes[i].second);                
+                garment_updates[i] = js_byte_array;
+            }
             
             Napi::Object status = Napi::Object::New(env);
             status.Set("handle", Napi::Number::New(env, data.session_status.handle));
@@ -521,6 +535,8 @@ Napi::Value ArcsimBinding::AddGarment(const Napi::CallbackInfo& info){
     int garment_handle;    
     GetFunction(validate_garment, garment_json.c_str() , &garment_blob );
     GetFunction(add_garment, session_handle, "data_garment", garment_json.c_str(), &garment_blob,   &garment_handle);
+    if(session.context)
+        session.context->garment_handles.push_back( garment_handle );    
     
     return Napi::Number::New(env, garment_handle);
 }
