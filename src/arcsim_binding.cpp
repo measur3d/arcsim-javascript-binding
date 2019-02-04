@@ -56,6 +56,9 @@ typedef uint32_t pause_session(int session_handle);
 typedef uint32_t reset_session(int session_handle);
 }
 
+
+
+
 #define STRINGIFY(name) #name
 #define GetFunction(name, ...) \
     {\
@@ -154,6 +157,82 @@ void validate(Napi::Env& env, ErrorCode code ){
     }
 }
 
+
+class LogData
+{
+public:
+    std::unique_ptr< std::ofstream > logfile;
+    std::string logpath;
+    bool isFileLogging;
+};
+
+std::ostream& operator<<(std::ostream& os, const LogMessage& message)
+{
+    os << message.preamble;
+    os << message.indentation;
+    os << message.prefix;
+    os << message.message;
+    os << std::endl;
+
+    return os;
+}
+
+void LogHandler( void* user_data, const LogMessage* message )
+{
+    LogData& logdata = *reinterpret_cast<LogData*>( user_data );
+
+    if( logdata.isFileLogging ) {
+        std::ofstream &os = *(logdata.logfile);
+        os << *const_cast<LogMessage *>( message );
+    }
+
+    if( message->verbosity < LOG_Verbosity_INFO )
+        std::cerr << *message;
+    else
+        std::cout << *message;
+
+}
+
+void CloseHandler( void* user_data )
+{                           
+    LogData& logdata = *reinterpret_cast<LogData*>( user_data );
+    if( logdata.isFileLogging ) {
+        (*logdata.logfile).close();
+        logdata.isFileLogging = false;        
+    }
+}
+
+void FlushHandler( void* user_data )
+{
+    LogData& logdata = *reinterpret_cast<LogData*>( user_data );
+    if( logdata.isFileLogging ) {
+        (*logdata.logfile).flush();
+    }
+    std::cout.flush();
+    std::cerr.flush();
+}
+
+void SetupLogging(int verbosity, std::string log_file )
+{
+    static LogData log_data;
+    
+    log_data.isFileLogging = false;
+    if( log_file != "" ){
+        log_data.isFileLogging = true;
+        log_data.logpath = log_file;
+        log_data.logfile = std::make_unique<std::ofstream>( log_file );        
+    }
+    api_log_callback(LogHandler, &log_data, (LogVerbosity) verbosity, CloseHandler, FlushHandler);
+}
+
+
+void TearDownLogging()
+{
+    api_log_callback(nullptr, nullptr, (LogVerbosity) 0, nullptr, nullptr);
+}
+
+
+
 ArcsimBinding::ArcsimBinding(const Napi::CallbackInfo& info) : ObjectWrap(info) {
     Napi::Env env = info.Env();
 
@@ -181,6 +260,9 @@ ArcsimBinding::ArcsimBinding(const Napi::CallbackInfo& info) : ObjectWrap(info) 
         Napi::Error::New(env, std::string("ARCSim Plugin could not be loaded: ") + err.what())
           .ThrowAsJavaScriptException();        
     }
+
+    //SetupLogging( 3, "" );    
+        
 }
 
 Napi::Value ArcsimBinding::Version(const Napi::CallbackInfo& info) {
@@ -325,14 +407,15 @@ Napi::Value ArcsimBinding::CreateSimulationSession(const Napi::CallbackInfo& inf
         std::vector<int> garment_handles = bindingContext.garment_handles;        
         Napi::Env env = bindingContext.env;
         ThreadSafeCallback& js_callback = *(bindingContext.callback);
-        typedef decltype(PackToBytestream<ARCSim::GarmentFrameT>(nullptr, nullptr)) packerRT;        
-        std::vector< packerRT > garments_bytes;
+        std::vector< std::vector<uint8_t> > garments_bytes;
         const char* error_msg = nullptr;
         if( data.type == CT_Error ){
             GetFunctionNoReturn(get_error_message, data.session_handle, error_msg);
         }
         else{            
-            for( int garment_id : garment_handles ){            
+            for( int garment_id : garment_handles ){
+                std::cout << "Loading garment " << garment_id << " for frame " << data.session_status.frame << std::endl;
+                
                 // Fetch the current mesh...
                 Geometry::Blob blob;
                 BinBlob* garment_data;
@@ -356,21 +439,32 @@ Napi::Value ArcsimBinding::CreateSimulationSession(const Napi::CallbackInfo& inf
                     return;
                 }
                 
-                garments_bytes.push_back( PackToBytestream( &fb_garmentFrame, nullptr ) );            
+                PackedBuffer buffer = PackToBuffer( &fb_garmentFrame, nullptr );
+                //std::cout << "Packed buffer: " << buffer.size() << std::endl;
+                
+                
+                std::vector<uint8_t> bytes;
+                bytes.resize(buffer.size());                
+                memcpy( bytes.data(), buffer.data(), buffer.size());
+                garments_bytes.push_back(bytes);                
             }
         }
         
         
             
-        js_callback.call([data, garments_bytes, error_msg](Napi::Env env, std::vector<napi_value>& args)
+        js_callback.call([=](Napi::Env env, std::vector<napi_value>& args)
         {
             const int type = data.type;
             Napi::Array garment_updates = Napi::Array::New(env);
             
-            for( int i = 0; i< garments_bytes.size(); ++i){                
-                Napi::Uint8Array js_byte_array = Napi::Uint8Array::New(env, garments_bytes[i].second);
-                memcpy( js_byte_array.Data(), garments_bytes[i].first, garments_bytes[i].second);                
-                garment_updates[i] = js_byte_array;
+            for( int i = 0; i< garments_bytes.size(); ++i){
+                //std::cout << "Building JS Array from bytes" << std::endl;
+                //std::cout << "   Index: " << i << std::endl;
+                //std::cout << "   Size:  " << garments_bytes[i].size() << std::endl;
+                
+                Napi::Uint8Array js_byte_array = Napi::Uint8Array::New(env, garments_bytes[i].size());
+                memcpy( js_byte_array.Data(), garments_bytes[i].data(), garments_bytes[i].size());
+                garment_updates[i] = js_byte_array;                
             }
             
             Napi::Object status = Napi::Object::New(env);
@@ -730,11 +824,16 @@ Napi::Value ArcsimBinding::GenerateMesh(const Napi::CallbackInfo& info){
             }
         }
         
-        auto bytes = PackToBytestream( &fb_scene, ARCSim::SceneIdentifier() );                
+        PackedBuffer buffer = PackToBuffer( &fb_scene, ARCSim::SceneIdentifier() );
+
+        std::vector<uint8_t> bytes;
+        bytes.resize(buffer.size());                
+        memcpy( bytes.data(), buffer.data(), buffer.size());
+        
         js_callback.call([data, bytes, error_msg](Napi::Env env, std::vector<napi_value>& args)
         {
-            Napi::Uint8Array js_byte_array = Napi::Uint8Array::New(env, bytes.second);
-            memcpy( js_byte_array.Data(), bytes.first, bytes.second);
+            Napi::Uint8Array js_byte_array = Napi::Uint8Array::New(env, bytes.size());
+            memcpy( js_byte_array.Data(), bytes.data(), bytes.size());
 
 
             if(error_msg)

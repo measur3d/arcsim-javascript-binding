@@ -5,12 +5,31 @@
 
 #include <utility>
 
+typedef flatbuffers::DetachedBuffer PackedBuffer;
 
 
 template<class T>
+PackedBuffer PackToBuffer(T* ptr, const char* identifier){
+    flatbuffers::FlatBufferBuilder fbb;
+
+    typedef typename T::TableType TableType;
+    flatbuffers::Offset<TableType> res = TableType::Pack(fbb, ptr);
+    if( identifier )
+        fbb.Finish(res, identifier );
+    else
+        fbb.Finish(res, nullptr );
+    
+    return fbb.Release();    
+}
+
+
+
+template<class T>
+[[deprecated("PackToBytestream is unsafe to use.")]]
 std::pair<uint8_t*, size_t> PackToBytestream(T* ptr, const char* identifier){
     static std::unique_ptr<flatbuffers::FlatBufferBuilder> fbb;
-    fbb = std::make_unique<flatbuffers::FlatBufferBuilder>();
+    if( !fbb )
+        fbb = std::make_unique<flatbuffers::FlatBufferBuilder>();
 
     typedef typename T::TableType TableType;
     flatbuffers::Offset<TableType> res = TableType::Pack(*fbb, ptr);
