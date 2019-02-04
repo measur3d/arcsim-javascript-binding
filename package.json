@@ -1,6 +1,6 @@
 {
   "name": "@avametric/arcsim",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "A binding for the C API of ARCSim to Javascript",
   "main": "lib/index.js",
   "scripts": {
